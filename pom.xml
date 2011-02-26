@@ -102,6 +102,7 @@
                   <version>1.1</version>
                 </artifactItem> 
               </artifactItems>
+              <stripVersion>true</stripVersion>
             </configuration>
           </execution>
         </executions>
@@ -109,7 +110,7 @@
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <argLine>-javaagent:${project.build.directory}/dependency/jdave-unfinalizer-1.1.jar</argLine>
+          <argLine>-javaagent:${project.build.directory}/dependency/jdave-unfinalizer.jar</argLine>
         </configuration>
       </plugin>
       <plugin>
@@ -139,15 +140,36 @@
             </plugin>
             <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.0-beta-1</version>
+                <version>1.0</version>
             </plugin>
         </plugins>
     </pluginManagement>
   </build>
+  <profiles>
+  	<profile>
+  		<id>m2eclipse</id>
+  		<activation>
+  			<property>
+  				<name>m2e.version</name>
+  			</property>
+  		</activation>
+  		<build>
+  			<plugins>
+  				<plugin>
+  					<artifactId>maven-compiler-plugin</artifactId>
+  					<configuration>
+  						<source>1.6</source>
+  						<target>1.6</target>
+  					</configuration>
+  				</plugin>
+  			</plugins>
+  		</build>
+  	</profile>
+  </profiles>
   <distributionManagement>
     <repository>
-      <id>java.net-m2-repository</id>
-      <url>http://maven.hudson-labs.org:8081/content/repositories/releases/</url>
+      <id>maven.jenkins-ci.org</id>
+      <url>http://maven.jenkins-ci.org:8081/content/repositories/releases/</url>
     </repository>
     <snapshotRepository>
         <id>local-repo</id>
