@@ -26,8 +26,8 @@ package hudson.plugins.clearcase.action;
 
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.plugins.clearcase.ClearTool;
-import hudson.plugins.clearcase.ConfigSpec;
+import hudson.plugins.clearcase.exec.ClearTool;
+import hudson.plugins.clearcase.model.ConfigSpec;
 
 import java.io.IOException;
 import java.io.PrintStream;

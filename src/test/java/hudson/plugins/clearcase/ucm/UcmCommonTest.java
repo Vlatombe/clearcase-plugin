@@ -3,9 +3,8 @@ package hudson.plugins.clearcase.ucm;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import hudson.model.TaskListener;
-import hudson.plugins.clearcase.Baseline;
-import hudson.plugins.clearcase.ClearTool;
-import hudson.plugins.clearcase.ClearToolLauncher;
+import hudson.plugins.clearcase.exec.ClearTool;
+import hudson.plugins.clearcase.launcher.ClearToolLauncher;
 
 import java.io.StringReader;
 import java.util.ArrayList;

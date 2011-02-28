@@ -26,6 +26,8 @@ package hudson.plugins.clearcase;
 
 import hudson.Extension;
 import hudson.Plugin;
+import hudson.plugins.clearcase.base.ClearCaseSCM;
+import hudson.plugins.clearcase.ucm.ClearCaseUcmSCM;
 
 /**
  * ClearCase plugin.

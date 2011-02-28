@@ -28,12 +28,10 @@ import static hudson.plugins.clearcase.util.OutputFormat.COMMENT;
 import static hudson.plugins.clearcase.util.OutputFormat.LINEEND;
 import hudson.model.AbstractBuild;
 import hudson.model.Run;
-import hudson.plugins.clearcase.Baseline;
-import hudson.plugins.clearcase.ClearCaseDataAction;
-import hudson.plugins.clearcase.ClearTool;
-import hudson.plugins.clearcase.action.UcmDynamicCheckoutAction;
-import hudson.plugins.clearcase.history.Filter;
-import hudson.plugins.clearcase.history.HistoryEntry;
+import hudson.plugins.clearcase.action.ClearCaseDataAction;
+import hudson.plugins.clearcase.exec.ClearTool;
+import hudson.plugins.clearcase.history.filters.Filter;
+import hudson.plugins.clearcase.history.model.HistoryEntry;
 import hudson.scm.ChangeLogSet.Entry;
 
 import java.io.BufferedReader;
@@ -55,7 +53,7 @@ public class FreezeCodeUcmHistoryAction extends UcmHistoryAction {
     private final String viewDrive;
     private final String stream;
     public FreezeCodeUcmHistoryAction(ClearTool cleartool, boolean useDynamicView, Filter filter, String stream, String viewDrive,
-            AbstractBuild<?, ?> build, ClearCaseUCMSCMRevisionState oldBaseline, ClearCaseUCMSCMRevisionState newBaseline) {
+            AbstractBuild<?, ?> build, UCMRevision oldBaseline, UCMRevision newBaseline) {
         super(cleartool, useDynamicView, filter, oldBaseline, newBaseline, null);
         this.build = build;
         this.stream = stream;

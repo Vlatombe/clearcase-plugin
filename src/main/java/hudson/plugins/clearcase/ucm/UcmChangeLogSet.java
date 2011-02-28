@@ -25,7 +25,7 @@
 package hudson.plugins.clearcase.ucm;
 
 import hudson.model.AbstractBuild;
-import hudson.plugins.clearcase.ClearCaseChangeLogSet;
+import hudson.plugins.clearcase.history.ClearCaseChangeLogSet;
 import hudson.scm.ChangeLogSet;
 
 import java.io.IOException;

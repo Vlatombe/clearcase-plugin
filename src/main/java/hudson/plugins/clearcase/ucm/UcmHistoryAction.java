@@ -34,12 +34,11 @@ import static hudson.plugins.clearcase.util.OutputFormat.UCM_ACTIVITY_HEADLINE;
 import static hudson.plugins.clearcase.util.OutputFormat.UCM_ACTIVITY_STREAM;
 import static hudson.plugins.clearcase.util.OutputFormat.UCM_VERSION_ACTIVITY;
 import static hudson.plugins.clearcase.util.OutputFormat.USER_ID;
-import hudson.plugins.clearcase.AbstractClearCaseScm.ChangeSetLevel;
-import hudson.plugins.clearcase.Baseline;
-import hudson.plugins.clearcase.ClearTool;
-import hudson.plugins.clearcase.history.AbstractHistoryAction;
-import hudson.plugins.clearcase.history.Filter;
-import hudson.plugins.clearcase.history.HistoryEntry;
+import hudson.plugins.clearcase.exec.ClearTool;
+import hudson.plugins.clearcase.history.action.AbstractHistoryAction;
+import hudson.plugins.clearcase.history.filters.Filter;
+import hudson.plugins.clearcase.history.model.ChangeSetLevel;
+import hudson.plugins.clearcase.history.model.HistoryEntry;
 import hudson.plugins.clearcase.util.ClearToolFormatHandler;
 import hudson.plugins.clearcase.util.OutputFormat;
 import hudson.scm.ChangeLogSet.Entry;
@@ -72,11 +71,11 @@ public class UcmHistoryAction extends AbstractHistoryAction {
 
     private final ClearToolFormatHandler historyHandler = new ClearToolFormatHandler(HISTORY_FORMAT);
 
-    private final ClearCaseUCMSCMRevisionState oldBaseline;
-    private final ClearCaseUCMSCMRevisionState newBaseline;
+    private final UCMRevision oldBaseline;
+    private final UCMRevision newBaseline;
 
-    public UcmHistoryAction(ClearTool cleartool, boolean useDynamicView, Filter filter, ClearCaseUCMSCMRevisionState oldBaseline,
-            ClearCaseUCMSCMRevisionState newBaseline, ChangeSetLevel changeset) {
+    public UcmHistoryAction(ClearTool cleartool, boolean useDynamicView, Filter filter, UCMRevision oldBaseline,
+            UCMRevision newBaseline, ChangeSetLevel changeset) {
         super(cleartool, useDynamicView, filter, changeset);
         this.oldBaseline = oldBaseline;
         this.newBaseline = newBaseline;

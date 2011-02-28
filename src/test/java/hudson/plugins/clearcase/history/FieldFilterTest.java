@@ -28,6 +28,8 @@ package hudson.plugins.clearcase.history;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import hudson.plugins.clearcase.history.filters.FieldFilter;
+import hudson.plugins.clearcase.history.model.HistoryEntry;
 
 import org.junit.Test;
 /**

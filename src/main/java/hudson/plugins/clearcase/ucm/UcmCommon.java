@@ -25,10 +25,9 @@
 package hudson.plugins.clearcase.ucm;
 
 import hudson.FilePath;
-import hudson.plugins.clearcase.Baseline;
-import hudson.plugins.clearcase.ClearTool;
-import hudson.plugins.clearcase.ClearTool.DiffBlOptions;
-import hudson.plugins.clearcase.Component;
+import hudson.plugins.clearcase.exec.ClearTool;
+import hudson.plugins.clearcase.exec.ClearTool.DiffBlOptions;
+import hudson.plugins.clearcase.model.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;

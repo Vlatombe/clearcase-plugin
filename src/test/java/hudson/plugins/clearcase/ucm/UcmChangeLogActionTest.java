@@ -25,9 +25,9 @@
 package hudson.plugins.clearcase.ucm;
 
 import static org.junit.Assert.assertEquals;
-import hudson.plugins.clearcase.ClearTool;
-import hudson.plugins.clearcase.history.DestroySubBranchFilter;
-import hudson.plugins.clearcase.history.Filter;
+import hudson.plugins.clearcase.exec.ClearTool;
+import hudson.plugins.clearcase.history.filters.DestroySubBranchFilter;
+import hudson.plugins.clearcase.history.filters.Filter;
 
 import java.io.File;
 import java.io.IOException;

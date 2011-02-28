@@ -25,13 +25,14 @@
 package hudson.plugins.clearcase.base;
 
 import static org.junit.Assert.assertEquals;
-import hudson.plugins.clearcase.AbstractClearCaseScm;
-import hudson.plugins.clearcase.ClearCaseChangeLogEntry;
-import hudson.plugins.clearcase.ClearCaseChangeLogEntry.FileElement;
-import hudson.plugins.clearcase.ClearTool;
-import hudson.plugins.clearcase.history.DestroySubBranchFilter;
-import hudson.plugins.clearcase.history.FileFilter;
-import hudson.plugins.clearcase.history.Filter;
+import hudson.plugins.clearcase.TestFile;
+import hudson.plugins.clearcase.exec.ClearTool;
+import hudson.plugins.clearcase.history.ClearCaseChangeLogEntry;
+import hudson.plugins.clearcase.history.ClearCaseChangeLogEntry.FileElement;
+import hudson.plugins.clearcase.history.filters.DestroySubBranchFilter;
+import hudson.plugins.clearcase.history.filters.FileFilter;
+import hudson.plugins.clearcase.history.filters.Filter;
+import hudson.plugins.clearcase.scm.AbstractClearCaseSCM;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -214,7 +215,7 @@ public class BaseChangeLogActionTest {
         filters.add(new DestroySubBranchFilter());
         String[] loadRules = new String[]{"vobs/com", "vobs/inf", "vobs/sm", "vobs/acc", "vobs/test"};
         
-        String regexpStr = AbstractClearCaseScm.getViewPathsRegexp(loadRules, true);
+        String regexpStr = AbstractClearCaseSCM.getViewPathsRegexp(loadRules, true);
         if (StringUtils.isNotEmpty(regexpStr)) {
             filters.add(new FileFilter(FileFilter.Type.ContainsRegxp, regexpStr));
         }
@@ -249,7 +250,7 @@ public class BaseChangeLogActionTest {
         filters.add(new DestroySubBranchFilter());
         String[] loadRules = new String[]{"vobs/inf"};
         
-        String regexpStr = AbstractClearCaseScm.getViewPathsRegexp(loadRules, true);
+        String regexpStr = AbstractClearCaseSCM.getViewPathsRegexp(loadRules, true);
 
         if (!regexpStr.equals("")) {
             filters.add(new FileFilter(FileFilter.Type.ContainsRegxp, regexpStr));
@@ -304,8 +305,7 @@ public class BaseChangeLogActionTest {
                 {
                     one(cleartool).lshistory(with(any(String.class)), with(any(Date.class)), 
                                              with(any(String.class)), with(any(String.class)), with(any(String[].class)), with(any(boolean.class)));
-                    will(returnValue(new InputStreamReader(
-                                                           AbstractClearCaseScm.class.getResourceAsStream( "ct-lshistory-1.log"))));
+                    will(returnValue(new InputStreamReader(TestFile.getResourceAsStream("ct-lshistory-1.log"))));
                 }
             });
 

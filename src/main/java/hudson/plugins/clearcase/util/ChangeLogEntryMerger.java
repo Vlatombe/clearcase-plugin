@@ -24,7 +24,7 @@
  */
 package hudson.plugins.clearcase.util;
 
-import hudson.plugins.clearcase.ClearCaseChangeLogEntry;
+import hudson.plugins.clearcase.history.ClearCaseChangeLogEntry;
 
 import java.util.ArrayList;
 import java.util.Collections;

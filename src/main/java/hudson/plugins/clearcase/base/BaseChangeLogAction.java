@@ -32,12 +32,12 @@ import static hudson.plugins.clearcase.util.OutputFormat.NAME_ELEMENTNAME;
 import static hudson.plugins.clearcase.util.OutputFormat.NAME_VERSIONID;
 import static hudson.plugins.clearcase.util.OutputFormat.OPERATION;
 import static hudson.plugins.clearcase.util.OutputFormat.USER_ID;
-import hudson.plugins.clearcase.ClearCaseChangeLogEntry;
-import hudson.plugins.clearcase.ClearTool;
-import hudson.plugins.clearcase.action.ChangeLogAction;
-import hudson.plugins.clearcase.history.Filter;
-import hudson.plugins.clearcase.history.FilterChain;
-import hudson.plugins.clearcase.history.HistoryEntry;
+import hudson.plugins.clearcase.exec.ClearTool;
+import hudson.plugins.clearcase.history.ClearCaseChangeLogEntry;
+import hudson.plugins.clearcase.history.action.ChangeLogAction;
+import hudson.plugins.clearcase.history.filters.Filter;
+import hudson.plugins.clearcase.history.filters.FilterChain;
+import hudson.plugins.clearcase.history.model.HistoryEntry;
 import hudson.plugins.clearcase.util.ChangeLogEntryMerger;
 import hudson.plugins.clearcase.util.ClearToolFormatHandler;
 

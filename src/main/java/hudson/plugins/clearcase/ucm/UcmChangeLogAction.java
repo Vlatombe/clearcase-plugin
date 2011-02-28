@@ -36,11 +36,11 @@ import static hudson.plugins.clearcase.util.OutputFormat.UCM_ACTIVITY_HEADLINE;
 import static hudson.plugins.clearcase.util.OutputFormat.UCM_ACTIVITY_STREAM;
 import static hudson.plugins.clearcase.util.OutputFormat.UCM_VERSION_ACTIVITY;
 import static hudson.plugins.clearcase.util.OutputFormat.USER_ID;
-import hudson.plugins.clearcase.ClearTool;
-import hudson.plugins.clearcase.action.ChangeLogAction;
-import hudson.plugins.clearcase.history.Filter;
-import hudson.plugins.clearcase.history.FilterChain;
-import hudson.plugins.clearcase.history.HistoryEntry;
+import hudson.plugins.clearcase.exec.ClearTool;
+import hudson.plugins.clearcase.history.action.ChangeLogAction;
+import hudson.plugins.clearcase.history.filters.Filter;
+import hudson.plugins.clearcase.history.filters.FilterChain;
+import hudson.plugins.clearcase.history.model.HistoryEntry;
 import hudson.plugins.clearcase.util.ClearToolFormatHandler;
 
 import java.io.BufferedReader;

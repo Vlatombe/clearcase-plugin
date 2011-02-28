@@ -4,7 +4,7 @@ import static org.junit.Assert.assertTrue;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.plugins.clearcase.AbstractWorkspaceTest;
-import hudson.plugins.clearcase.ClearTool;
+import hudson.plugins.clearcase.exec.ClearTool;
 
 import java.io.IOException;
 

@@ -33,19 +33,18 @@ import hudson.model.Build;
 import hudson.model.AbstractProject;
 import hudson.model.Computer;
 import hudson.model.Node;
-import hudson.plugins.clearcase.AbstractClearCaseScm;
-import hudson.plugins.clearcase.ClearCaseChangeLogEntry;
-import hudson.plugins.clearcase.ClearCaseChangeLogEntry.FileElement;
-import hudson.plugins.clearcase.ClearCaseSCM;
-import hudson.plugins.clearcase.ClearCaseSCMDummy;
-import hudson.plugins.clearcase.ClearTool;
-import hudson.plugins.clearcase.ClearToolLauncher;
-import hudson.plugins.clearcase.history.DefaultFilter;
-import hudson.plugins.clearcase.history.DestroySubBranchFilter;
-import hudson.plugins.clearcase.history.FileFilter;
-import hudson.plugins.clearcase.history.Filter;
-import hudson.plugins.clearcase.history.FilterChain;
-import hudson.plugins.clearcase.history.LabelFilter;
+import hudson.plugins.clearcase.TestFile;
+import hudson.plugins.clearcase.exec.ClearTool;
+import hudson.plugins.clearcase.history.ClearCaseChangeLogEntry;
+import hudson.plugins.clearcase.history.ClearCaseChangeLogEntry.FileElement;
+import hudson.plugins.clearcase.history.filters.DefaultFilter;
+import hudson.plugins.clearcase.history.filters.DestroySubBranchFilter;
+import hudson.plugins.clearcase.history.filters.FileFilter;
+import hudson.plugins.clearcase.history.filters.Filter;
+import hudson.plugins.clearcase.history.filters.FilterChain;
+import hudson.plugins.clearcase.history.filters.LabelFilter;
+import hudson.plugins.clearcase.launcher.ClearToolLauncher;
+import hudson.plugins.clearcase.scm.AbstractClearCaseSCM;
 import hudson.plugins.clearcase.util.BuildVariableResolver;
 import hudson.util.LogTaskListener;
 import hudson.util.VariableResolver;
@@ -381,8 +380,7 @@ public class BaseHistoryActionTest {
                     allowing(cleartool).doesViewExist(with(equal("viewTag"))); will(returnValue(true));
                     one(cleartool).lshistory(with(any(String.class)), with(any(Date.class)), 
                                              with(any(String.class)), with(any(String.class)), with(any(String[].class)), with(equal(false)));
-                    will(returnValue(new InputStreamReader(
-                                                           AbstractClearCaseScm.class.getResourceAsStream( "ct-lshistory-1.log"))));
+                    will(returnValue(new InputStreamReader(TestFile.getResourceAsStream( "ct-lshistory-1.log"))));
                 }
             });
 
@@ -781,7 +779,7 @@ public class BaseHistoryActionTest {
                         with(any(String.class)), with(any(String[].class)),
                         with(equal(true)));
                 will(returnValue(new InputStreamReader(
-                        AbstractClearCaseScm.class.getResourceAsStream(
+                		TestFile.getResourceAsStream(
                         "ct-lshistory-label-1.log"))));
             }
         });
@@ -814,12 +812,8 @@ public class BaseHistoryActionTest {
                         with(any(String.class)), with(any(String[].class)),
                         with(equal(true)));
                 will(onConsecutiveCalls(
-                        returnValue(new InputStreamReader(
-                            AbstractClearCaseScm.class
-                            .getResourceAsStream("ct-lshistory-label-2.log"))),
-                        returnValue(new InputStreamReader(
-                            AbstractClearCaseScm.class
-                            .getResourceAsStream("ct-lshistory-label-2.log")))
+                        returnValue(new InputStreamReader(TestFile.getResourceAsStream("ct-lshistory-label-2.log"))),
+                        returnValue(new InputStreamReader(TestFile.getResourceAsStream("ct-lshistory-label-2.log")))
                         ));
             }
         });
@@ -865,9 +859,7 @@ public class BaseHistoryActionTest {
                     allowing(cleartool).lshistory(with(any(String.class)), with(any(Date.class)),
                                                   with(any(String.class)), with(any(String.class)), 
                                                   with(any(String[].class)), with(equal(true)));
-                    will(returnValue(new InputStreamReader(
-                            AbstractClearCaseScm.class
-                            .getResourceAsStream("ct-lshistory-label-1.log"))));
+                    will(returnValue(new InputStreamReader(TestFile.getResourceAsStream("ct-lshistory-label-1.log"))));
 
                 }
             });

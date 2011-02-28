@@ -39,6 +39,11 @@ import org.jmock.api.Invocation;
 public class StreamCopyAction implements Action {
     private InputStream inputStream;
     private int parameterIndex;
+    
+    public StreamCopyAction(int parameterIndex, String filename) {
+    	this.parameterIndex = parameterIndex;
+    	this.inputStream = getClass().getResourceAsStream(filename);
+    }
 
     public StreamCopyAction(int parameterIndex, InputStream inputStream) {
         this.inputStream = inputStream;

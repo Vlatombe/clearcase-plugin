@@ -29,16 +29,14 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
-import hudson.plugins.clearcase.AbstractClearCaseScm;
-import hudson.plugins.clearcase.ClearCaseUcmSCM;
-import hudson.plugins.clearcase.ClearCaseUcmSCMDummy;
-import hudson.plugins.clearcase.ClearTool;
-import hudson.plugins.clearcase.ClearToolLauncher;
-import hudson.plugins.clearcase.history.DefaultFilter;
-import hudson.plugins.clearcase.history.DestroySubBranchFilter;
-import hudson.plugins.clearcase.history.FileFilter;
-import hudson.plugins.clearcase.history.Filter;
-import hudson.plugins.clearcase.history.FilterChain;
+import hudson.plugins.clearcase.exec.ClearTool;
+import hudson.plugins.clearcase.history.filters.DefaultFilter;
+import hudson.plugins.clearcase.history.filters.DestroySubBranchFilter;
+import hudson.plugins.clearcase.history.filters.FileFilter;
+import hudson.plugins.clearcase.history.filters.Filter;
+import hudson.plugins.clearcase.history.filters.FilterChain;
+import hudson.plugins.clearcase.launcher.ClearToolLauncher;
+import hudson.plugins.clearcase.scm.AbstractClearCaseSCM;
 import hudson.util.VariableResolver;
 
 import java.io.IOException;
@@ -444,7 +442,7 @@ public class UcmHistoryActionTest {
     @Bug(5342)
     @Test
     public void testUCMTrailingSlashesInLoadRules() throws Exception {
-        AbstractClearCaseScm scm = new ClearCaseUcmSCMDummy("jcp_v13.1_be_int@\\june2008_recover", "\\be_rec\\config\\\r\n\\be_rec\\access\\\r\n"
+        AbstractClearCaseSCM scm = new ClearCaseUcmSCMDummy("jcp_v13.1_be_int@\\june2008_recover", "\\be_rec\\config\\\r\n\\be_rec\\access\\\r\n"
                                                        + "\\be_rec\\admins\\\r\n\\be_rec\\be\\\r\n\\be_rec\\buildservices\\\r\n"
                                                        + "\\be_rec\\uf\\\r\n\\be_rec\\sef\\\r\n\\be_rec\\jwash\\", "stromp_be_builc", false, "M:\\",
                                                        null, true, true, false, null, null, null, false,

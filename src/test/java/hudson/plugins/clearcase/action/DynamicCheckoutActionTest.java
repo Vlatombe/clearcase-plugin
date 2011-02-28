@@ -29,9 +29,9 @@ import static org.junit.Assert.assertTrue;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.plugins.clearcase.AbstractWorkspaceTest;
-import hudson.plugins.clearcase.ClearCaseDataAction;
-import hudson.plugins.clearcase.ClearTool;
-import hudson.plugins.clearcase.ClearTool.SetcsOption;
+import hudson.plugins.clearcase.base.DynamicCheckoutAction;
+import hudson.plugins.clearcase.exec.ClearTool;
+import hudson.plugins.clearcase.exec.ClearTool.SetcsOption;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;

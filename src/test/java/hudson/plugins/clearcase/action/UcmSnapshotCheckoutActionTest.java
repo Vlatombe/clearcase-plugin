@@ -28,8 +28,9 @@ import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.BuildListener;
 import hudson.plugins.clearcase.AbstractWorkspaceTest;
-import hudson.plugins.clearcase.ClearTool;
-import hudson.plugins.clearcase.ClearTool.SetcsOption;
+import hudson.plugins.clearcase.exec.ClearTool;
+import hudson.plugins.clearcase.exec.ClearTool.SetcsOption;
+import hudson.plugins.clearcase.ucm.UcmSnapshotCheckoutAction;
 
 import java.util.List;
 

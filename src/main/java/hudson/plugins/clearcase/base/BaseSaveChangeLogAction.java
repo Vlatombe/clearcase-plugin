@@ -24,9 +24,9 @@
  */
 package hudson.plugins.clearcase.base;
 
-import hudson.plugins.clearcase.ClearCaseChangeLogEntry;
-import hudson.plugins.clearcase.ClearCaseChangeLogSet;
-import hudson.plugins.clearcase.action.SaveChangeLogAction;
+import hudson.plugins.clearcase.history.ClearCaseChangeLogEntry;
+import hudson.plugins.clearcase.history.ClearCaseChangeLogSet;
+import hudson.plugins.clearcase.history.action.SaveChangeLogAction;
 import hudson.scm.ChangeLogSet.Entry;
 
 import java.io.File;

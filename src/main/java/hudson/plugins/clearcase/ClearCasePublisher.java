@@ -3,6 +3,7 @@ package hudson.plugins.clearcase;
 import hudson.Launcher;
 import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
+import hudson.plugins.clearcase.action.ClearCaseReportAction;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
