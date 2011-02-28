@@ -27,10 +27,10 @@ package hudson.plugins.clearcase.ucm;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.plugins.clearcase.action.AbstractCheckoutAction;
-import hudson.plugins.clearcase.action.AbstractCheckoutAction.LoadRulesDelta;
 import hudson.plugins.clearcase.exec.ClearTool;
 import hudson.plugins.clearcase.exec.ClearTool.SetcsOption;
 import hudson.plugins.clearcase.model.ConfigSpec;
+import hudson.plugins.clearcase.model.LoadRulesDelta;
 
 import java.io.IOException;
 
@@ -58,7 +58,7 @@ public class UcmSnapshotCheckoutAction extends AbstractCheckoutAction {
             }
         } else {
             ConfigSpec viewConfigSpec = new ConfigSpec(cleartool.catcs(viewTag), launcher.isUnix());
-            AbstractCheckoutAction.LoadRulesDelta loadRulesDelta = getLoadRulesDelta(viewConfigSpec.getLoadRules(), launcher);
+            LoadRulesDelta loadRulesDelta = getLoadRulesDelta(viewConfigSpec.getLoadRules(), launcher);
             if (!ArrayUtils.isEmpty(loadRulesDelta.getRemoved())) {
                 try {
                     cleartool.setcs(viewPath, SetcsOption.CONFIGSPEC, viewConfigSpec.setLoadRules(loadRules).getRaw());

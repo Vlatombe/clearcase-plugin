@@ -28,6 +28,7 @@ import hudson.FilePath;
 import hudson.Launcher;
 import hudson.plugins.clearcase.exec.ClearTool;
 import hudson.plugins.clearcase.model.ConfigSpec;
+import hudson.plugins.clearcase.model.LoadRulesDelta;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -43,26 +44,6 @@ import org.apache.commons.lang.Validate;
  */
 public abstract class AbstractCheckoutAction implements CheckOutAction {
     
-
-    public static class LoadRulesDelta {
-        private final Set<String> removed;
-        private final Set<String> added;
-        public LoadRulesDelta(Set<String> removed, Set<String> added) {
-            super();
-            this.removed = removed;
-            this.added = added;
-        }
-        public String[] getAdded() {
-            return added.toArray(new String[added.size()]);
-        }
-        public String[] getRemoved() {
-            return removed.toArray(new String[removed.size()]);
-        }
-        public boolean isEmpty() {
-            return added.isEmpty() && removed.isEmpty();
-        }
-    }
-
     protected final ClearTool cleartool;
     protected final String[] loadRules;
     protected final boolean useUpdate;
@@ -133,7 +114,7 @@ public abstract class AbstractCheckoutAction implements CheckOutAction {
         }
     }
 
-    protected AbstractCheckoutAction.LoadRulesDelta getLoadRulesDelta(Set<String> configSpecLoadRules, Launcher launcher) {
+    protected LoadRulesDelta getLoadRulesDelta(Set<String> configSpecLoadRules, Launcher launcher) {
         Set<String> removedLoadRules = new LinkedHashSet<String>(configSpecLoadRules);
         Set<String> addedLoadRules = new LinkedHashSet<String>();
         if (!ArrayUtils.isEmpty(loadRules)) {
@@ -150,7 +131,7 @@ public abstract class AbstractCheckoutAction implements CheckOutAction {
                 logger.println("Added load rule : " + addedLoadRule);
             }
         }
-        return new AbstractCheckoutAction.LoadRulesDelta(removedLoadRules, addedLoadRules);
+        return new LoadRulesDelta(removedLoadRules, addedLoadRules);
     }
 
     private FilePath getUnusedFilePath(FilePath workspace, String viewName) throws IOException, InterruptedException {

@@ -27,10 +27,10 @@ package hudson.plugins.clearcase.base;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.plugins.clearcase.action.AbstractCheckoutAction;
-import hudson.plugins.clearcase.action.AbstractCheckoutAction.LoadRulesDelta;
 import hudson.plugins.clearcase.exec.ClearTool;
 import hudson.plugins.clearcase.exec.ClearTool.SetcsOption;
 import hudson.plugins.clearcase.model.ConfigSpec;
+import hudson.plugins.clearcase.model.LoadRulesDelta;
 
 import java.io.IOException;
 
@@ -53,7 +53,7 @@ public class SnapshotCheckoutAction extends AbstractCheckoutAction {
 
         // At this stage, we have a valid view and a valid path
         boolean needSetCs = true;
-        AbstractCheckoutAction.LoadRulesDelta loadRulesDelta = null;
+        LoadRulesDelta loadRulesDelta = null;
         if (!viewCreated) {
             ConfigSpec viewConfigSpec = new ConfigSpec(cleartool.catcs(viewTag), launcher.isUnix());
             loadRulesDelta = getLoadRulesDelta(viewConfigSpec.getLoadRules(), launcher);
