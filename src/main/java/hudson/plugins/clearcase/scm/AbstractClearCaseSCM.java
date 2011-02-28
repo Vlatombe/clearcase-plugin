@@ -291,29 +291,40 @@ public abstract class AbstractClearCaseSCM extends SCM {
 
     public FilePath getModuleRoot(FilePath workspace, AbstractBuild build) {
         if (useDynamicView) {
-            String normViewName = getNormalizedViewName( );
+            String normViewName = getNormalizedViewNameForBuild(build);
             return new FilePath(workspace.getChannel(), viewDrive).child(normViewName);
         } else {
-            String normViewPath = getNormalizedViewPath();
-            if (normViewPath != null) {
-                return workspace.child(normViewPath);
-            } else {
-                if(build == null) {
-                    normViewPath = getViewPath();
-                } else {
-                    normViewPath = getViewPath(new BuildVariableResolver(build));
-                }
-                if (normViewPath != null) {
-                    return workspace.child(normViewPath);
-                } else {
-                    // Should never happen, because viewName must not be null, and if viewpath is null, then it is made equal to viewName
-                    throw new IllegalStateException("View path name cannot be null. There is a bug inside AbstractClearCaseScm.");
-                }
-            }
+        	return workspace.child(getNormalizedViewPathForBuild(build));
         }
     }
 
-    public String getViewName() {
+    private String getNormalizedViewNameForBuild(AbstractBuild build) {
+    	String normViewName = getNormalizedViewName();
+    	if (normViewName != null) {
+    		return normViewName;
+    	} else {
+            if(build == null) {
+                return getViewName();
+            } else {
+                return getViewName(new BuildVariableResolver(build));
+            }
+    	}
+	}
+
+	private String getNormalizedViewPathForBuild(AbstractBuild build) {
+    	String normViewPath = getNormalizedViewPath();
+    	if (normViewPath != null) {
+    		return normViewPath;
+    	} else {
+            if(build == null) {
+                return getViewPath();
+            } else {
+                return getViewPath(new BuildVariableResolver(build));
+            }
+    	}
+	}
+
+	public String getViewName() {
         return viewName;
     }
     
