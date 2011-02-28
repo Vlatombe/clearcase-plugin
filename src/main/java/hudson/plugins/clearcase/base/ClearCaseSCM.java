@@ -27,17 +27,15 @@ package hudson.plugins.clearcase.base;
 import static hudson.Util.fixEmpty;
 import static hudson.Util.fixEmptyAndTrim;
 import hudson.CopyOnWrite;
+import hudson.Extension;
 import hudson.Launcher;
+import hudson.Launcher.ProcStarter;
 import hudson.Util;
 import hudson.model.ModelObject;
 import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
-import hudson.model.Computer;
 import hudson.model.Hudson;
-import hudson.model.Node;
 import hudson.plugins.clearcase.ClearCaseInstallation;
-import hudson.plugins.clearcase.PluginImpl;
-import hudson.plugins.clearcase.ClearCaseInstallation.DescriptorImpl;
 import hudson.plugins.clearcase.action.CheckOutAction;
 import hudson.plugins.clearcase.exec.ClearTool;
 import hudson.plugins.clearcase.exec.ClearToolDynamic;
@@ -96,11 +94,11 @@ public class ClearCaseSCM extends AbstractClearCaseSCM {
 
     private static final String DEFAULT_VALUE_WIN_DYN_STORAGE_DIR = "\\views\\dynamic";
 
-    private String configSpec;
+    private final String configSpec;
     private final String branch;
     private final String label;
-    private boolean doNotUpdateConfigSpec;
-    private boolean useTimeRule;
+    private final boolean doNotUpdateConfigSpec;
+    private final boolean useTimeRule;
 
     @DataBoundConstructor
     public ClearCaseSCM(String branch, String label, String configspec, String viewTag, boolean useupdate, String loadRules, boolean usedynamicview, String viewdrive,
@@ -143,7 +141,7 @@ public class ClearCaseSCM extends AbstractClearCaseSCM {
 
     @Override
     public ClearCaseScmDescriptor getDescriptor() {
-        return PluginImpl.BASE_DESCRIPTOR;
+        return (ClearCaseScmDescriptor) super.getDescriptor();
     }
 
     @Override
@@ -251,6 +249,7 @@ public class ClearCaseSCM extends AbstractClearCaseSCM {
      * 
      * @author Erik Ramfelt
      */
+    @Extension
     public static class ClearCaseScmDescriptor extends SCMDescriptor<ClearCaseSCM> implements ModelObject {
         private static final int DEFAULT_CHANGE_LOG_MERGE_TIME_WINDOW = 5;
         
@@ -272,22 +271,8 @@ public class ClearCaseSCM extends AbstractClearCaseSCM {
             return changeLogMergeTimeWindow;
         }
 
-        public String getCleartoolExe() {
-            String cleartoolExe;
-            try {
-                cleartoolExe = getCleartoolExe(Computer.currentComputer().getNode(), TaskListener.NULL);
-            } catch (Exception e) {
-                cleartoolExe = "cleartool";
-            }
-            return cleartoolExe;
-        }
-
-        public String getCleartoolExe(Node node, TaskListener listener) throws IOException, InterruptedException {
-            return Hudson.getInstance().getDescriptorByType(ClearCaseInstallation.DescriptorImpl.class).getInstallation().getCleartoolExe(node, listener);
-        }
-
         public String getDefaultViewName() {
-            return StringUtils.defaultString(defaultViewName, "${USER_NAME}_${NODE_NAME}_${JOB_NAME}_hudson");
+            return StringUtils.defaultString(defaultViewName, "${USER_NAME}_${NODE_NAME}_${JOB_NAME}_" + Hudson.getInstance().getDisplayName());
         }
         
         public String getDefaultViewPath() {
@@ -317,13 +302,19 @@ public class ClearCaseSCM extends AbstractClearCaseSCM {
 
         @Override
         public boolean configure(StaplerRequest req, JSONObject json) {
-            defaultViewName = fixEmpty(req.getParameter("clearcase.defaultViewName").trim());
-            defaultViewPath = fixEmpty(req.getParameter("clearcase.defaultViewPath").trim());
-            defaultWinDynStorageDir = fixEmpty(req.getParameter("clearcase.defaultWinDynStorageDir").trim());
-            defaultUnixDynStorageDir = fixEmpty(req.getParameter("clearcase.defaultUnixDynStorageDir").trim());
+            defaultViewName = fixEmptyAndTrim(req.getParameter("clearcase.defaultViewName"));
+            defaultViewPath = fixEmptyAndTrim(req.getParameter("clearcase.defaultViewPath"));
+            defaultWinDynStorageDir = fixEmptyAndTrim(req.getParameter("clearcase.defaultWinDynStorageDir"));
+            defaultUnixDynStorageDir = fixEmptyAndTrim(req.getParameter("clearcase.defaultUnixDynStorageDir"));
 
             String mergeTimeWindow = fixEmpty(req.getParameter("clearcase.logmergetimewindow"));
-            if (mergeTimeWindow != null) {
+            setChangeLogMergeTimeWindow(mergeTimeWindow);
+            save();
+            return true;
+        }
+
+		private void setChangeLogMergeTimeWindow(String mergeTimeWindow) {
+			if (mergeTimeWindow != null) {
                 try {
                     changeLogMergeTimeWindow = DecimalFormat.getIntegerInstance().parse(mergeTimeWindow).intValue();
                 } catch (ParseException e) {
@@ -332,9 +323,7 @@ public class ClearCaseSCM extends AbstractClearCaseSCM {
             } else {
                 changeLogMergeTimeWindow = DEFAULT_CHANGE_LOG_MERGE_TIME_WINDOW;
             }
-            save();
-            return true;
-        }
+		}
 
         @Override
         public SCM newInstance(StaplerRequest req, JSONObject formData) throws FormException {
@@ -423,7 +412,7 @@ public class ClearCaseSCM extends AbstractClearCaseSCM {
         public void doVersion(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException, InterruptedException {
             ByteBuffer baos = new ByteBuffer();
             try {
-                Hudson.getInstance().createLauncher(TaskListener.NULL).launch().cmds(getCleartoolExe(), "-version").stdout(baos).join();
+                createLauncherToNullOutput().cmds(getCleartoolExe(), "-version").stdout(baos).join();
                 rsp.setContentType("text/plain");
                 baos.writeTo(rsp.getOutputStream());
             } catch (IOException e) {
@@ -432,14 +421,22 @@ public class ClearCaseSCM extends AbstractClearCaseSCM {
             }
         }
 
+		private String getCleartoolExe() {
+			return getInstallations()[0].getCleartoolExe();
+		}
+
         public void doListViews(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException, InterruptedException {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            Hudson.getInstance().createLauncher(TaskListener.NULL).launch().cmds(getCleartoolExe(), "lsview", "-short").stdout(baos).join();
+            createLauncherToNullOutput().cmds(getCleartoolExe(), "lsview", "-short").stdout(baos).join();
 
             rsp.setContentType("text/plain");
             rsp.getOutputStream().println("ClearCase Views found:\n");
             baos.writeTo(rsp.getOutputStream());
         }
+
+		private ProcStarter createLauncherToNullOutput() {
+			return Hudson.getInstance().createLauncher(TaskListener.NULL).launch();
+		}
 
         public ClearCaseInstallation[] getInstallations() {
             return this.installations;

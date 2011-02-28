@@ -1,5 +1,6 @@
 package hudson.plugins.clearcase;
 
+import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
@@ -14,7 +15,6 @@ import java.io.Serializable;
 
 import net.sf.json.JSONObject;
 
-import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
 /**
@@ -23,30 +23,10 @@ import org.kohsuke.stapler.StaplerRequest;
  * @author Rinat Ailon
  */
 public class ClearCasePublisher extends Notifier implements Serializable {
-    @DataBoundConstructor
-    public ClearCasePublisher() {
-
-    }
-
-    public boolean prebuild(AbstractBuild<?, ?> build, BuildListener listener) {
+    @Override
+	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
+        build.addAction(new ClearCaseReportAction(build));
         return true;
-    }
-
-    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
-        try {
-            ClearCaseReportAction action = new ClearCaseReportAction(build);
-            build.getActions().add(action);
-
-        } catch (Exception e) {
-            // failure to parse should not fail the build
-            e.printStackTrace();
-        }
-
-        return true;
-    }
-
-    public BuildStepDescriptor getDescriptor() {
-        return DescriptorImpl.DESCRIPTOR;
     }
 
     /**
@@ -54,12 +34,11 @@ public class ClearCasePublisher extends Notifier implements Serializable {
      * 
      * @author rgoren
      */
+    @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
-        public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
         /*
          * This initializes the global configuration when loaded
          */
-
         public DescriptorImpl() {
             super(ClearCasePublisher.class);
             // This makes sure any existing global configuration is read from the persistence file <Hudson work
@@ -72,11 +51,13 @@ public class ClearCasePublisher extends Notifier implements Serializable {
             return true;
         }
 
-        public String getDisplayName() {
+        @Override
+		public String getDisplayName() {
             return "Create ClearCase report";
         }
 
-        public String getHelpFile() {
+        @Override
+		public String getHelpFile() {
             return "/plugin/clearcase/publisher.html";
         }
 
@@ -92,9 +73,8 @@ public class ClearCasePublisher extends Notifier implements Serializable {
 
     }
 
-    private static final long serialVersionUID = 1L;
-
-    public BuildStepMonitor getRequiredMonitorService() {
+    @Override
+	public BuildStepMonitor getRequiredMonitorService() {
         return BuildStepMonitor.NONE;
     }
 

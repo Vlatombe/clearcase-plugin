@@ -24,13 +24,15 @@
  */
 package hudson.plugins.clearcase.ucm;
 
+import hudson.Extension;
 import hudson.Launcher;
 import hudson.Util;
 import hudson.model.ModelObject;
 import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
-import hudson.plugins.clearcase.PluginImpl;
+import hudson.model.Hudson;
 import hudson.plugins.clearcase.action.CheckOutAction;
+import hudson.plugins.clearcase.base.ClearCaseSCM;
 import hudson.plugins.clearcase.base.ClearCaseSCM.ClearCaseScmDescriptor;
 import hudson.plugins.clearcase.exec.ClearTool;
 import hudson.plugins.clearcase.exec.ClearToolDynamic;
@@ -73,7 +75,7 @@ public class ClearCaseUcmSCM extends AbstractClearCaseSCM {
     private final String stream;
     private final String overrideBranchName;
     private boolean allocateViewName;
-    private boolean useManualLoadRules;
+    private final boolean useManualLoadRules;
     @DataBoundConstructor
     public ClearCaseUcmSCM(String stream, String loadrules, String viewTag, boolean usedynamicview, String viewdrive, String mkviewoptionalparam,
             boolean filterOutDestroySubBranchEvent, boolean useUpdate, boolean rmviewonrename, String excludedRegions, String multiSitePollBuffer,
@@ -130,7 +132,7 @@ public class ClearCaseUcmSCM extends AbstractClearCaseSCM {
 
     @Override
     public ClearCaseUcmScmDescriptor getDescriptor() {
-        return PluginImpl.UCM_DESCRIPTOR;
+        return (ClearCaseUcmScmDescriptor) super.getDescriptor();
     }
 
     @Override
@@ -199,7 +201,8 @@ public class ClearCaseUcmSCM extends AbstractClearCaseSCM {
         return action;
     }
 
-    protected HistoryAction createHistoryAction(VariableResolver<String> variableResolver, ClearToolLauncher launcher, AbstractBuild<?, ?> build) throws IOException, InterruptedException {
+    @Override
+	protected HistoryAction createHistoryAction(VariableResolver<String> variableResolver, ClearToolLauncher launcher, AbstractBuild<?, ?> build) throws IOException, InterruptedException {
         ClearTool ct = createClearTool(variableResolver, launcher);
         UcmHistoryAction action;
         UCMRevision oldBaseline = null;
@@ -207,7 +210,7 @@ public class ClearCaseUcmSCM extends AbstractClearCaseSCM {
         PrintStream logger = launcher.getListener().getLogger();
         if (build != null) {
             try {
-                AbstractBuild<?, ?> previousBuild = (AbstractBuild<?, ?>) build.getPreviousBuild();
+                AbstractBuild<?, ?> previousBuild = build.getPreviousBuild();
                 if (previousBuild != null) {
                     oldBaseline = build.getPreviousBuild().getAction(UCMRevision.class);
                 }
@@ -228,7 +231,7 @@ public class ClearCaseUcmSCM extends AbstractClearCaseSCM {
             action = new UcmHistoryAction(ct, isUseDynamicView(), configureFilters(variableResolver, build, launcher.getLauncher()), oldBaseline, newBaseline, getChangeset());
         }
         try {
-            String pwv = ct.pwv(generateNormalizedViewName((BuildVariableResolver) variableResolver));
+            String pwv = ct.pwv(generateNormalizedViewName(variableResolver));
 
             if (pwv != null) {
                 if (pwv.contains("/")) {
@@ -297,22 +300,29 @@ public class ClearCaseUcmSCM extends AbstractClearCaseSCM {
      * 
      * @author Erik Ramfelt
      */
+    @Extension
     public static class ClearCaseUcmScmDescriptor extends SCMDescriptor<ClearCaseUcmSCM> implements ModelObject {
 
         private ClearCaseScmDescriptor baseDescriptor;
-
-        public ClearCaseUcmScmDescriptor(ClearCaseScmDescriptor baseDescriptor) {
+        
+        public ClearCaseUcmScmDescriptor() {
             super(ClearCaseUcmSCM.class, null);
-            this.baseDescriptor = baseDescriptor;
             load();
         }
 
         public String getDefaultViewName() {
-            return baseDescriptor.getDefaultViewName();
+            return getBaseDescriptor().getDefaultViewName();
         }
+
+		private ClearCaseScmDescriptor getBaseDescriptor() {
+			if (baseDescriptor == null) {
+				baseDescriptor = (ClearCaseSCM.ClearCaseScmDescriptor) Hudson.getInstance().getDescriptorOrDie(ClearCaseSCM.class);
+			}
+			return baseDescriptor;
+		}
         
         public String getDefaultViewPath() {
-            return baseDescriptor.getDefaultViewPath();
+            return getBaseDescriptor().getDefaultViewPath();
         }
 
         @Override
@@ -326,11 +336,11 @@ public class ClearCaseUcmSCM extends AbstractClearCaseSCM {
         }
 
         public String getDefaultWinDynStorageDir() {
-            return baseDescriptor.getDefaultWinDynStorageDir();
+            return getBaseDescriptor().getDefaultWinDynStorageDir();
         }
 
         public String getDefaultUnixDynStorageDir() {
-            return baseDescriptor.getDefaultUnixDynStorageDir();
+            return getBaseDescriptor().getDefaultUnixDynStorageDir();
         }
 
         @Override

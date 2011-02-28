@@ -30,6 +30,7 @@ import hudson.Functions;
 import hudson.Util;
 import hudson.model.EnvironmentSpecific;
 import hudson.model.TaskListener;
+import hudson.model.Computer;
 import hudson.model.Hudson;
 import hudson.model.Node;
 import hudson.plugins.clearcase.base.ClearCaseSCM;
@@ -74,8 +75,19 @@ public class ClearCaseInstallation extends ToolInstallation implements NodeSpeci
         super(NAME, home, Collections.EMPTY_LIST);
     }
 
-    public ClearCaseInstallation forNode(Node node, TaskListener log) throws IOException, InterruptedException {
+    @Override
+	public ClearCaseInstallation forNode(Node node, TaskListener log) throws IOException, InterruptedException {
         return new ClearCaseInstallation(translateFor(node, log));
+    }
+    
+    public String getCleartoolExe() {
+    	String cleartoolExe;
+        try {
+            cleartoolExe = getCleartoolExe(Computer.currentComputer().getNode(), TaskListener.NULL);
+        } catch (Exception e) {
+            cleartoolExe = CLEARTOOL_EXE_FALLBACK;
+        }
+        return cleartoolExe;
     }
 
     public String getCleartoolExe(Node node, TaskListener listener) throws IOException, InterruptedException {

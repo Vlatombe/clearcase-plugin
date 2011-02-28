@@ -33,9 +33,10 @@ import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Computer;
+import hudson.model.Hudson;
 import hudson.model.Node;
 import hudson.model.Run;
-import hudson.plugins.clearcase.PluginImpl;
+import hudson.plugins.clearcase.ClearCaseInstallation;
 import hudson.plugins.clearcase.action.CheckOutAction;
 import hudson.plugins.clearcase.action.ClearCaseDataAction;
 import hudson.plugins.clearcase.exec.ClearTool;
@@ -88,14 +89,14 @@ public abstract class AbstractClearCaseSCM extends SCM {
     public static final String CLEARCASE_VIEWNAME_ENVSTR = "CLEARCASE_VIEWNAME";
     public static final String CLEARCASE_VIEWPATH_ENVSTR = "CLEARCASE_VIEWPATH";
 
-    private String viewName;
+    private final String viewName;
     private final String mkviewOptionalParam;
     private final boolean filteringOutDestroySubBranchEvent;
     private transient ThreadLocal<String> normalizedViewName;
     private transient ThreadLocal<String> normalizedViewPath;
     private final boolean useUpdate;
     private final boolean removeViewOnRename;
-    private String excludedRegions;
+    private final String excludedRegions;
     private final String loadRules;
     private final boolean useDynamicView;
     private final String viewDrive;
@@ -541,7 +542,7 @@ public abstract class AbstractClearCaseSCM extends SCM {
         }
         AbstractClearCaseRevision ccBaseline = (AbstractClearCaseRevision) baseline;
         
-        AbstractBuild<?, ?> build = (AbstractBuild<?, ?>) project.getSomeBuildWithWorkspace();
+        AbstractBuild<?, ?> build = project.getSomeBuildWithWorkspace();
         if (build == null) {
             return PollingResult.BUILD_NOW;
         }
@@ -583,10 +584,23 @@ public abstract class AbstractClearCaseSCM extends SCM {
      * @return a clear tool launcher that uses Hudson for launching commands
      */
     public ClearToolLauncher createClearToolLauncher(TaskListener listener, FilePath workspace, Launcher launcher) {
-        return new HudsonClearToolLauncher(PluginImpl.BASE_DESCRIPTOR.getCleartoolExe(), getDescriptor().getDisplayName(), listener, workspace, launcher);
+        return new HudsonClearToolLauncher(getCleartoolExe(), getDescriptor().getDisplayName(), listener, workspace, launcher);
+    }
+    
+    public String getCleartoolExe() {
+        return getClearCaseInstallation().getCleartoolExe();
     }
 
-    protected ClearTool createClearTool(VariableResolver<String> variableResolver, ClearToolLauncher launcher) {
+    public String getCleartoolExe(Node node, TaskListener listener) throws IOException, InterruptedException {
+        return getClearCaseInstallation().getCleartoolExe(node, listener);
+    }
+
+	private ClearCaseInstallation getClearCaseInstallation() {
+		return Hudson.getInstance().getDescriptorByType(ClearCaseInstallation.DescriptorImpl.class).getInstallation();
+	}
+    
+    
+	protected ClearTool createClearTool(VariableResolver<String> variableResolver, ClearToolLauncher launcher) {
         return new ClearToolSnapshot(variableResolver, launcher, mkviewOptionalParam);
     }
 
