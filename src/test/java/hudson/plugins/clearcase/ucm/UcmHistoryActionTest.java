@@ -35,6 +35,7 @@ import hudson.plugins.clearcase.history.filters.DestroySubBranchFilter;
 import hudson.plugins.clearcase.history.filters.FileFilter;
 import hudson.plugins.clearcase.history.filters.Filter;
 import hudson.plugins.clearcase.history.filters.FilterChain;
+import hudson.plugins.clearcase.history.filters.FilterType;
 import hudson.plugins.clearcase.launcher.ClearToolLauncher;
 import hudson.plugins.clearcase.scm.AbstractClearCaseSCM;
 import hudson.util.VariableResolver;
@@ -283,7 +284,7 @@ public class UcmHistoryActionTest {
         List<Filter> filters = new ArrayList<Filter>();
 
         filters.add(new DefaultFilter());
-        filters.add(new FileFilter(FileFilter.Type.DoesNotContainRegxp, "Server"));
+        filters.add(new FileFilter(FilterType.DoesNotContainRegxp, "Server"));
         UcmHistoryAction action = new UcmHistoryAction(cleartool,false,new FilterChain(filters), null, null, null);
         @SuppressWarnings("unchecked")
         List<UcmActivity> activities = (List<UcmActivity>) action.getChanges(null, "IGNORED", "viewTag", new String[]{"Release_2_1_int"}, new String[]{"vobs/projects/Server"});

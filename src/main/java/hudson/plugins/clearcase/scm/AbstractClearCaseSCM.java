@@ -48,6 +48,7 @@ import hudson.plugins.clearcase.history.filters.DestroySubBranchFilter;
 import hudson.plugins.clearcase.history.filters.FileFilter;
 import hudson.plugins.clearcase.history.filters.Filter;
 import hudson.plugins.clearcase.history.filters.FilterChain;
+import hudson.plugins.clearcase.history.filters.FilterType;
 import hudson.plugins.clearcase.history.model.ChangeSetLevel;
 import hudson.plugins.clearcase.launcher.ClearToolLauncher;
 import hudson.plugins.clearcase.launcher.HudsonClearToolLauncher;
@@ -92,15 +93,13 @@ public abstract class AbstractClearCaseSCM extends SCM {
     private final String viewName;
     private final String mkviewOptionalParam;
     private final boolean filteringOutDestroySubBranchEvent;
-    private transient ThreadLocal<String> normalizedViewName;
-    private transient ThreadLocal<String> normalizedViewPath;
     private final boolean useUpdate;
     private final boolean removeViewOnRename;
     private final String excludedRegions;
     private final String loadRules;
     private final boolean useDynamicView;
     private final String viewDrive;
-    private int multiSitePollBuffer;
+    private final int multiSitePollBuffer;
     private final boolean createDynView;
     private final String winDynStorageDir;
     private final String unixDynStorageDir;
@@ -108,37 +107,6 @@ public abstract class AbstractClearCaseSCM extends SCM {
     private final boolean recreateView;
     private final String viewPath;
     private ChangeSetLevel changeset;
-
-    private synchronized ThreadLocal<String> getNormalizedViewNameThreadLocalWrapper() {
-        if (null == normalizedViewName) {
-            this.normalizedViewName = new ThreadLocal<String>();
-        }
-        return this.normalizedViewName;
-    }
-    
-    private synchronized ThreadLocal<String> getNormalizedViewPathThreadLocalWrapper() {
-        if (normalizedViewPath == null) {
-            normalizedViewPath = new ThreadLocal<String>();
-        }
-        return normalizedViewPath;
-    }
-
-    protected void setNormalizedViewName(String normalizedViewName) {
-        getNormalizedViewNameThreadLocalWrapper().set(normalizedViewName);
-    }
-
-    protected String getNormalizedViewName() {
-        return getNormalizedViewNameThreadLocalWrapper().get();
-    }
-    
-    protected void setNormalizedViewPath(String normalizedViewPath) {
-        getNormalizedViewPathThreadLocalWrapper().set(normalizedViewPath);
-    }
-
-    protected String getNormalizedViewPath() {
-        return getNormalizedViewPathThreadLocalWrapper().get();
-    }
-    
 
     public AbstractClearCaseSCM(final String viewName, final String mkviewOptionalParam, final boolean filterOutDestroySubBranchEvent, final boolean useUpdate,
             final boolean rmviewonrename, final String excludedRegions, final boolean useDynamicView, final String viewDrive, final String loadRules,
@@ -154,15 +122,7 @@ public abstract class AbstractClearCaseSCM extends SCM {
         this.useDynamicView = useDynamicView;
         this.viewDrive = viewDrive;
         this.loadRules = loadRules;
-        if (multiSitePollBuffer != null) {
-            try {
-                this.multiSitePollBuffer = DecimalFormat.getIntegerInstance().parse(multiSitePollBuffer).intValue();
-            } catch (ParseException e) {
-                this.multiSitePollBuffer = 0;
-            }
-        } else {
-            this.multiSitePollBuffer = 0;
-        }
+        this.multiSitePollBuffer = parseMultiSitePollBuffer(multiSitePollBuffer);
         this.createDynView = createDynView;
         this.winDynStorageDir = winDynStorageDir;
         this.unixDynStorageDir = unixDynStorageDir;
@@ -171,6 +131,15 @@ public abstract class AbstractClearCaseSCM extends SCM {
         this.viewPath = StringUtils.defaultIfEmpty(viewPath, viewName);
         this.changeset = changeset;
     }
+
+	private int parseMultiSitePollBuffer(String multiSitePollBuffer) {
+		if (multiSitePollBuffer != null) {
+            try {
+                return DecimalFormat.getIntegerInstance().parse(multiSitePollBuffer).intValue();
+            } catch (ParseException e) {}
+        }
+		return 0;
+	}
 
     /**
      * Create a CheckOutAction that will be used by the checkout method.
@@ -232,7 +201,7 @@ public abstract class AbstractClearCaseSCM extends SCM {
     public String[] getViewPaths(VariableResolver<String> variableResolver, AbstractBuild build, Launcher launcher) throws IOException, InterruptedException {
         String loadRules = getLoadRules();
         if (StringUtils.isBlank(loadRules)) {
-            return null;
+            return new String[0];
         }
 
         String[] rules = loadRules.split("[\\r\\n]+");
@@ -299,29 +268,19 @@ public abstract class AbstractClearCaseSCM extends SCM {
     }
 
     private String getNormalizedViewNameForBuild(AbstractBuild build) {
-    	String normViewName = getNormalizedViewName();
-    	if (normViewName != null) {
-    		return normViewName;
-    	} else {
-            if(build == null) {
-                return getViewName();
-            } else {
-                return getViewName(new BuildVariableResolver(build));
-            }
-    	}
+        if(build == null) {
+            return getViewName();
+        } else {
+            return getViewName(new BuildVariableResolver(build));
+        }
 	}
 
 	private String getNormalizedViewPathForBuild(AbstractBuild build) {
-    	String normViewPath = getNormalizedViewPath();
-    	if (normViewPath != null) {
-    		return normViewPath;
-    	} else {
-            if(build == null) {
-                return getViewPath();
-            } else {
-                return getViewPath(new BuildVariableResolver(build));
-            }
-    	}
+        if(build == null) {
+            return getViewPath();
+        } else {
+            return getViewPath(new BuildVariableResolver(build));
+        }
 	}
 
 	public String getViewName() {
@@ -329,13 +288,12 @@ public abstract class AbstractClearCaseSCM extends SCM {
     }
     
     public String getViewName(VariableResolver<String> variableResolver) {
-        String normalized = null;
         String v = getViewName();
         if (v != null) {
-            normalized = Util.replaceMacro(v.replaceAll("[\\s\\\\\\/:\\?\\*\\|]+", "_"), variableResolver);
-            setNormalizedViewName(normalized);
+            return Util.replaceMacro(v.replaceAll("[\\s\\\\\\/:\\?\\*\\|]+", "_"), variableResolver);
+        } else {
+        	return null;
         }
-        return normalized;
     }
 
     public String getWinDynStorageDir() {
@@ -412,10 +370,7 @@ public abstract class AbstractClearCaseSCM extends SCM {
      */
     public String generateNormalizedViewName(VariableResolver<String> variableResolver, String modViewName) {
         String generatedNormalizedViewName = Util.replaceMacro(modViewName, variableResolver);
-
         generatedNormalizedViewName = generatedNormalizedViewName.replaceAll("[\\s\\\\\\/:\\?\\*\\|]+", "_");
-
-        setNormalizedViewName(generatedNormalizedViewName);
         return generatedNormalizedViewName;
     }
 
@@ -660,7 +615,7 @@ public abstract class AbstractClearCaseSCM extends SCM {
     }
 
     public String[] getExcludedRegionsNormalized() {
-        return excludedRegions == null ? null : excludedRegions.split("[\\r\\n]+");
+        return excludedRegions == null ? new String[0] : excludedRegions.split("[\\r\\n]+");
     }
 
     public Filter configureFilters(VariableResolver<String> variableResolver, AbstractBuild build, Launcher launcher) throws IOException, InterruptedException {
@@ -668,24 +623,18 @@ public abstract class AbstractClearCaseSCM extends SCM {
         filters.add(new DefaultFilter());
 
         String[] excludedStrings = getExcludedRegionsNormalized();
-
-        if (excludedStrings != null && excludedStrings.length > 0) {
-            for (String s : excludedStrings) {
-                if (!s.equals("")) {
-                    filters.add(new FileFilter(FileFilter.Type.DoesNotContainRegxp, s));
-                }
+        for (String currentExcludedString : excludedStrings) {
+            if (StringUtils.isNotEmpty(currentExcludedString)) {
+                filters.add(new FileFilter(FilterType.DoesNotContainRegxp, currentExcludedString));
             }
         }
         
         String filterRegexp = "";
         String[] viewPaths = getViewPaths(variableResolver, build, launcher);
-        if (viewPaths != null) {
-            filterRegexp = getViewPathsRegexp(viewPaths, launcher.isUnix());
-        }
+        filterRegexp = getViewPathsRegexp(viewPaths, launcher.isUnix());
         if (StringUtils.isNotEmpty(filterRegexp)) {
-            filters.add(new FileFilter(FileFilter.Type.ContainsRegxp, filterRegexp));
+            filters.add(new FileFilter(FilterType.ContainsRegxp, filterRegexp));
         }
-
         if (isFilteringOutDestroySubBranchEvent()) {
             filters.add(new DestroySubBranchFilter());
         }
@@ -700,7 +649,7 @@ public abstract class AbstractClearCaseSCM extends SCM {
             String tempFilterRules = "";
             for (String loadRule : loadRules) {
                 if (StringUtils.isNotEmpty(loadRule)) {
-                    if (loadRule.endsWith("/") || loadRule.endsWith("\\")) {
+                    if (endsWithSeparator(loadRule)) {
                         loadRule = loadRule.substring(0, loadRule.length()-1);
                     }
                     loadRule = PathUtil.convertPathForOS(loadRule, isUnix);
@@ -717,18 +666,20 @@ public abstract class AbstractClearCaseSCM extends SCM {
         return filterRegexp;
     }
 
+	private static boolean endsWithSeparator(String loadRule) {
+		return loadRule.endsWith("/") || loadRule.endsWith("\\");
+	}
+
     public String getViewPath() {
         return StringUtils.defaultString(viewPath, viewName);
     }
     
     public String getViewPath(VariableResolver<String> variableResolver) {
-        String normalized = null;
         String viewPath = StringUtils.defaultIfEmpty(getViewPath(), getViewName());
         if (viewPath != null) {
-            normalized = Util.replaceMacro(viewPath.replaceAll("[\\s\\\\\\/:\\?\\*\\|]+", "_"), variableResolver);
-            setNormalizedViewPath(normalized);
+            return Util.replaceMacro(viewPath.replaceAll("[\\s\\\\\\/:\\?\\*\\|]+", "_"), variableResolver);
         }
-        return normalized;
+        return null;
     }
     
 

@@ -32,6 +32,7 @@ import hudson.plugins.clearcase.history.ClearCaseChangeLogEntry.FileElement;
 import hudson.plugins.clearcase.history.filters.DestroySubBranchFilter;
 import hudson.plugins.clearcase.history.filters.FileFilter;
 import hudson.plugins.clearcase.history.filters.Filter;
+import hudson.plugins.clearcase.history.filters.FilterType;
 import hudson.plugins.clearcase.scm.AbstractClearCaseSCM;
 
 import java.io.IOException;
@@ -107,7 +108,7 @@ public class BaseChangeLogActionTest {
             });
         
         List<Filter> filters = new ArrayList<Filter>();
-        filters.add(new FileFilter(FileFilter.Type.DoesNotContainRegxp, ".*Application.*"));
+        filters.add(new FileFilter(FilterType.DoesNotContainRegxp, ".*Application.*"));
 
         BaseChangeLogAction action = new BaseChangeLogAction(cleartool, 10000,filters);
         List<ClearCaseChangeLogEntry> changes = action.getChanges(new Date(), "IGNORED", new String[]{"Release_2_1_int"}, new String[]{"vobs/projects/Server"});
@@ -183,7 +184,7 @@ public class BaseChangeLogActionTest {
             });
         
         List<Filter> filters = new ArrayList<Filter>();
-        filters.add(new FileFilter(FileFilter.Type.DoesNotContainRegxp, "^Source[\\\\\\/]Definitions[\\\\\\/].*"));
+        filters.add(new FileFilter(FilterType.DoesNotContainRegxp, "^Source[\\\\\\/]Definitions[\\\\\\/].*"));
 
         BaseChangeLogAction action = new BaseChangeLogAction(cleartool, 10000,filters);
 
@@ -217,7 +218,7 @@ public class BaseChangeLogActionTest {
         
         String regexpStr = AbstractClearCaseSCM.getViewPathsRegexp(loadRules, true);
         if (StringUtils.isNotEmpty(regexpStr)) {
-            filters.add(new FileFilter(FileFilter.Type.ContainsRegxp, regexpStr));
+            filters.add(new FileFilter(FilterType.ContainsRegxp, regexpStr));
         }
 
         BaseChangeLogAction action = new BaseChangeLogAction(cleartool, 10000,filters);
@@ -253,7 +254,7 @@ public class BaseChangeLogActionTest {
         String regexpStr = AbstractClearCaseSCM.getViewPathsRegexp(loadRules, true);
 
         if (!regexpStr.equals("")) {
-            filters.add(new FileFilter(FileFilter.Type.ContainsRegxp, regexpStr));
+            filters.add(new FileFilter(FilterType.ContainsRegxp, regexpStr));
         }
 
         BaseChangeLogAction action = new BaseChangeLogAction(cleartool, 10000,filters);

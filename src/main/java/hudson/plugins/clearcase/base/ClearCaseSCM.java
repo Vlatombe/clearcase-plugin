@@ -51,6 +51,7 @@ import hudson.plugins.clearcase.model.AbstractClearCaseRevision;
 import hudson.plugins.clearcase.model.ConfigSpec;
 import hudson.plugins.clearcase.scm.AbstractClearCaseSCM;
 import hudson.plugins.clearcase.util.BuildVariableResolver;
+import hudson.plugins.clearcase.util.PathUtil;
 import hudson.scm.ChangeLogParser;
 import hudson.scm.SCMDescriptor;
 import hudson.scm.SCMRevisionState;
@@ -59,7 +60,6 @@ import hudson.util.FormValidation;
 import hudson.util.VariableResolver;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -67,7 +67,6 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -150,18 +149,6 @@ public class ClearCaseSCM extends AbstractClearCaseSCM {
     }
 
     @Override
-    public void buildEnvVars(AbstractBuild<?, ?> build, Map<String, String> env) {
-        super.buildEnvVars(build, env);
-        if (isUseDynamicView()) {
-            if (getViewDrive() != null) {
-                env.put(CLEARCASE_VIEWPATH_ENVSTR, getViewDrive() + File.separator + getNormalizedViewName());
-            } else {
-                env.remove(CLEARCASE_VIEWPATH_ENVSTR);
-            }
-        }
-    }
-
-    @Override
     protected CheckOutAction createCheckOutAction(VariableResolver<String> variableResolver, ClearToolLauncher launcher, AbstractBuild<?, ?> build) throws IOException, InterruptedException {
         CheckOutAction action;
         String effectiveConfigSpec = Util.replaceMacro(configSpec, variableResolver);
@@ -183,11 +170,8 @@ public class ClearCaseSCM extends AbstractClearCaseSCM {
             String viewName = generateNormalizedViewName(variableResolver);
             String pwv = ct.pwv(viewName);
             if (pwv != null) {
-                if (pwv.contains("/")) {
-                    pwv += "/";
-                } else {
-                    pwv += "\\";
-                }
+                boolean launcherOsIsUnix = launcher.getLauncher().isUnix();
+                pwv += PathUtil.fileSepForOS(launcherOsIsUnix);
                 action.setExtendedViewPath(pwv);
             }
         } catch (Exception e) {

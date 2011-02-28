@@ -43,6 +43,7 @@ import hudson.plugins.clearcase.history.filters.FileFilter;
 import hudson.plugins.clearcase.history.filters.Filter;
 import hudson.plugins.clearcase.history.filters.FilterChain;
 import hudson.plugins.clearcase.history.filters.LabelFilter;
+import hudson.plugins.clearcase.history.filters.FilterType;
 import hudson.plugins.clearcase.launcher.ClearToolLauncher;
 import hudson.plugins.clearcase.scm.AbstractClearCaseSCM;
 import hudson.plugins.clearcase.util.BuildVariableResolver;
@@ -267,7 +268,7 @@ public class BaseHistoryActionTest {
         
         List<Filter> filters = new ArrayList<Filter>();
         filters.add(new DefaultFilter());
-        filters.add(new FileFilter(FileFilter.Type.DoesNotContainRegxp, "Customer"));
+        filters.add(new FileFilter(FilterType.DoesNotContainRegxp, "Customer"));
 
         BaseHistoryAction action = new BaseHistoryAction(cleartool,false,new FilterChain(filters), 10000);
         List<ClearCaseChangeLogEntry> changes = (List<ClearCaseChangeLogEntry>) action.getChanges(new Date(), "viewPath", "viewTag", new String[]{"Release_2_1_int"}, new String[]{"vobs/projects/Server"});

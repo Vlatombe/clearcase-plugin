@@ -31,7 +31,7 @@ import hudson.plugins.clearcase.history.model.HistoryEntry;
  */
 public class FileFilter extends FieldFilter {
 
-    public FileFilter(Type type, String patternText) {
+    public FileFilter(FilterType type, String patternText) {
         super(type, patternText);
     }
 

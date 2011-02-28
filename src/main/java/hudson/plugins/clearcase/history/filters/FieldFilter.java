@@ -36,11 +36,11 @@ import java.util.regex.Pattern;
  * @author hlyh
  */
 public abstract class FieldFilter implements Filter {
-    private Type type;
+    private FilterType type;
     private String patternText;
     private Pattern pattern;
 
-    public FieldFilter(FieldFilter.Type type, String patternText) {
+    public FieldFilter(FilterType type, String patternText) {
         this.type = type;
         switch (this.type) {
         case Equals:
@@ -107,10 +107,6 @@ public abstract class FieldFilter implements Filter {
             return !m2.find();
         }
         return true;
-    }
-
-    public enum Type {
-        Equals, EqualsIgnoreCase, NotEquals, NotEqualsIgnoreCase, StartsWith, StartsWithIgnoreCase, EndsWith, EndsWithIgnoreCase, Contains, ContainsIgnoreCase, DoesNotContain, DoesNotContainIgnoreCase, ContainsRegxp, DoesNotContainRegxp
     }
 
 }
