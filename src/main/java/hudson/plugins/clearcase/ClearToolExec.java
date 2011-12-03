@@ -820,6 +820,7 @@ public abstract class ClearToolExec implements ClearTool {
             if (successCode && line.contains("cleartool: Error")) {
                 IOException e = new IOException(line);
                 if (!catchExceptions) {
+                    reader.close();
                     throw e;
                 } else {
                     exceptions.add(e);
