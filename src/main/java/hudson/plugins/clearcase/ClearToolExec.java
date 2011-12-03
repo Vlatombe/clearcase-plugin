@@ -793,15 +793,21 @@ public abstract class ClearToolExec implements ClearTool {
     protected String runAndProcessOutput(ArgumentListBuilder cmd, InputStream in, FilePath workFolder, boolean catchExceptions, List<IOException> exceptions)
             throws IOException, InterruptedException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        boolean successCode;
         try {
-            launcher.run(cmd.toCommandArray(), in, baos, workFolder);
+            successCode = launcher.run(cmd.toCommandArray(), in, baos, workFolder);
         } catch (IOException e) {
             if (!catchExceptions) {
                 throw e;
             } else {
                 exceptions.add(e);
             }
+            successCode = false;
         }
+        return processOutput(baos, catchExceptions, exceptions, successCode);
+    }
+
+    protected String processOutput(ByteArrayOutputStream baos, boolean catchExceptions, List<IOException> exceptions, boolean successCode) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(baos.toByteArray())));
         baos.close();
         String line = reader.readLine();
@@ -809,6 +815,15 @@ public abstract class ClearToolExec implements ClearTool {
         while (line != null) {
             if (builder.length() > 0) {
                 builder.append("\n");
+            }
+            // Only add clearcase errors if the command returned success. If it failed then we already got an IOException earlier
+            if (successCode && line.contains("cleartool: Error")) {
+                IOException e = new IOException(line);
+                if (!catchExceptions) {
+                    throw e;
+                } else {
+                    exceptions.add(e);
+                }
             }
             builder.append(line);
             line = reader.readLine();
