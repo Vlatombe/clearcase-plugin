@@ -855,6 +855,12 @@ public abstract class ClearToolExec implements ClearTool {
             }
         }
 
-        runAndProcessOutput(cmd, new ByteArrayInputStream("yes\nyes\n".getBytes()), filePath, false, null);
+        /*
+         * R. Kubler - Quick fix but potential risk for big project - the output string may have a big size.
+         */
+        String output = runAndProcessOutput(cmd, new ByteArrayInputStream("yes\nyes\n".getBytes()), filePath, false, null);
+        if (output.contains("cleartool: Error")) {
+            throw new IOException("Failed to update the view: " + output);
+        }
     }
 }
