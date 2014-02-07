@@ -40,16 +40,25 @@ import hudson.plugins.clearcase.ClearToolLauncher;
 import hudson.plugins.clearcase.MkViewParameters;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(AbstractBuild.class)
 public class DynamicCheckoutActionTest extends AbstractWorkspaceTest {
 
-    @Mock
     private AbstractBuild<?, ?> abstractBuild;
     @Mock
     private ClearCaseDataAction clearCaseDataAction;
@@ -63,6 +72,7 @@ public class DynamicCheckoutActionTest extends AbstractWorkspaceTest {
     @Before
     public void setUp() throws Exception {
         createWorkspace();
+        abstractBuild = PowerMockito.mock(AbstractBuild.class);
     }
 
     @After
@@ -169,6 +179,10 @@ public class DynamicCheckoutActionTest extends AbstractWorkspaceTest {
         when(clearTool.catcs("viewname")).thenReturn("config\nspec");
         when(launcher.isUnix()).thenReturn(false);
         when(abstractBuild.getAction(ClearCaseDataAction.class)).thenReturn(clearCaseDataAction);
+        Date now = new Date();
+        DateFormat df = new SimpleDateFormat("d-MMM-yy.HH:mm:ss'utc'Z", Locale.US);
+        String formattedDate = df.format(now).toLowerCase();
+        when(abstractBuild.getTime()).thenReturn(now);
 
         CheckoutAction action = new BaseDynamicCheckoutAction(clearTool, "config\nspec", false, true, false, null, abstractBuild);
         boolean success = action.checkout(launcher, workspace, "viewname");
@@ -176,7 +190,7 @@ public class DynamicCheckoutActionTest extends AbstractWorkspaceTest {
 
         verify(clearTool).startView("viewname");
         verify(clearTool).catcs("viewname");
-        verify(clearTool).setcs2(eq("viewname"), eq(SetcsOption.CONFIGSPEC), contains("time "));
+        verify(clearTool).setcs2(eq("viewname"), eq(SetcsOption.CONFIGSPEC), contains("time " + formattedDate));
     }
 
 }

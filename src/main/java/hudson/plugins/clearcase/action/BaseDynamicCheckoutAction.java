@@ -86,13 +86,11 @@ public class BaseDynamicCheckoutAction extends CheckoutAction {
     }
 
     public String getTimeRule() {
-        return getTimeRule(new Date());
+        return getTimeRule(build.getTime());
     }
 
     public String getTimeRule(Date nowDate) {
         SimpleDateFormat formatter = new SimpleDateFormat("d-MMM-yy.HH:mm:ss'UTC'Z", Locale.US);
-        formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-
         return formatter.format(nowDate).toLowerCase();
     }
 
